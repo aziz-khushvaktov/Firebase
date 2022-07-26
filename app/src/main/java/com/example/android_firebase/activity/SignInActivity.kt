@@ -1,18 +1,10 @@
 package com.example.android_firebase.activity
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import com.example.android_firebase.database.UserDao
-import com.example.android_firebase.database.UserRepository
 import com.example.android_firebase.databinding.ActivitySignInBinding
 import com.example.android_firebase.manager.AuthHandler
 import com.example.android_firebase.manager.AuthManager
-import com.example.android_firebase.model.User
 import com.example.android_firebase.utils.Extensions.toast
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import java.lang.Exception
 
 class SignInActivity : BaseActivity() {
 
@@ -28,14 +20,15 @@ class SignInActivity : BaseActivity() {
     private fun initViews() {
         binding.apply {
             bSignIn.setOnClickListener {
-                firebaseSignIn(etEmail.text.toString(),etPassword.text.toString())
+                firebaseSignIn(etEmail.text.toString(), etPassword.text.toString())
             }
             tvSignUp.setOnClickListener { callSignUpActivity(context) }
         }
     }
+
     private fun firebaseSignIn(email: String, password: String) {
         showLoading(this)
-        AuthManager.signIn(email,password,object :AuthHandler {
+        AuthManager.signIn(email, password, object : AuthHandler {
             override fun onSuccess() {
                 dismissLoading()
                 toast("Signed in successfully!")
@@ -46,7 +39,7 @@ class SignInActivity : BaseActivity() {
                 dismissLoading()
                 if (AuthManager.checkEmail(email)) {
                     toast("ERROR INVALID EMAIL")
-                }else {
+                } else {
                     toast("ERROR WRONG PASSWORD")
                 }
             }

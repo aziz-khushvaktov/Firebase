@@ -1,9 +1,6 @@
 package com.example.android_firebase.manager
 
-import android.util.Log
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 
 object AuthManager {
@@ -23,20 +20,20 @@ object AuthManager {
 
 
     fun signIn(email: String, password: String, handler: AuthHandler) {
-        firebaseAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener { task ->
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 handler.onSuccess()
-            }else {
+            } else {
                 handler.onError(task.exception)
             }
         }
     }
 
     fun signUp(email: String, password: String, handler: AuthHandler) {
-        firebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener { task ->
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 handler.onSuccess()
-            }else {
+            } else {
                 handler.onError(task.exception)
             }
         }

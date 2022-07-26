@@ -6,7 +6,6 @@ buildscript {
         google()  // Google's Maven repository
         // For DB
         mavenCentral()
-        jcenter()
 
     }
     dependencies {
