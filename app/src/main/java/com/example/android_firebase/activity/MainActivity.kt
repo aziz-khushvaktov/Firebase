@@ -36,17 +36,28 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initViews() {
+        setupAdapter()
         apiLoadAllPosts()
         swipeRecycler()
+        logOut()
+        fabManage()
+    }
+
+    private fun fabManage() {
+        binding.fabCreate.setOnClickListener { callCreateActivity() }
+    }
+
+    private fun logOut() {
+        binding.ivLogout.setOnClickListener {
+            AuthManager.signOut()
+            callSignInActivity(context)
+        }
+    }
+
+    private fun setupAdapter() {
         binding.apply {
             recyclerView.layoutManager = GridLayoutManager(this@MainActivity, 1)
             recyclerView.adapter = adapter
-
-            ivLogout.setOnClickListener {
-                AuthManager.signOut()
-                callSignInActivity(context)
-            }
-            fabCreate.setOnClickListener { callCreateActivity() }
         }
     }
 
@@ -57,7 +68,7 @@ class MainActivity : BaseActivity() {
                 dismissLoading()
                 items.clear()
                 items.addAll(posts)
-                adapter.submitData(items)
+                adapter.submitList(posts)
             }
 
             override fun onError() {
@@ -94,8 +105,8 @@ class MainActivity : BaseActivity() {
                     Color.parseColor("#FF3700B3")) { pos: Int ->
                     Toast.makeText(this@MainActivity, "Deleted click at $pos", Toast.LENGTH_SHORT)
                         .show()
+//                    items.clear()
                     deletePost(items[pos])
-                    items.clear()
                 })
                 // Update
                 underlayButtons?.add(UnderlayButton("Update",
@@ -103,7 +114,6 @@ class MainActivity : BaseActivity() {
                         R.drawable.ic_baseline_cloud_upload_24),
                     resources.getColor(R.color.green),
                     Color.parseColor("#FF3700B3")
-
                 ) { pos: Int ->
                     callUpdateActivity(items[pos])
                 })
@@ -112,20 +122,22 @@ class MainActivity : BaseActivity() {
     }
 
     private fun callUpdateActivity(post: Post) {
-        val intent = Intent(this,UpdateActivity::class.java)
-        intent.putExtra("post",post)
+        val intent = Intent(this, UpdateActivity::class.java)
+        intent.putExtra("post", post)
         updateLauncher.launch(intent)
     }
-    var updateLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val data: Intent? = result.data
-        val post  = data!!.getSerializableExtra("returnPost")
-        Log.d("updatePost", post.toString())
-        updatePost(post as Post)
-    }
+
+    var updateLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val data: Intent? = result.data
+            val post = data!!.getSerializableExtra("returnPost")
+            Log.d("updatePost", post.toString())
+            updatePost(post as Post)
+        }
 
     private fun deletePost(post: Post) {
         showLoading(this)
-        DatabaseManager.deletePost(post,object : DatabaseHandler {
+        DatabaseManager.deletePost(post, object : DatabaseHandler {
             override fun onSuccess(post: Post?, posts: ArrayList<Post>) {
                 apiLoadAllPosts()
                 dismissLoading()
@@ -140,7 +152,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun updatePost(post: Post) {
-        DatabaseManager.updatePost(post,object : DatabaseHandler {
+        DatabaseManager.updatePost(post, object : DatabaseHandler {
             override fun onSuccess(post: Post?, posts: ArrayList<Post>) {
                 toast("Post updated successfully!")
             }

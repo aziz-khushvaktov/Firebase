@@ -1,41 +1,60 @@
 package com.example.android_firebase.adapter
 
-import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.android_firebase.databinding.ItemPostListBinding
 import com.example.android_firebase.model.Post
 
-class PosterAdapter:
-    RecyclerView.Adapter<PosterAdapter.PosterViewHolder>() {
+class PosterAdapter :
+    ListAdapter<Post,
+            PosterAdapter.Vh>(MyDiffUtil()) {
 
-    var items: ArrayList<Post> = ArrayList()
+    inner class Vh(
+        private var itemHistoryBinding: ItemPostListBinding,
+        var context: Context,
+    ) :
+        RecyclerView.ViewHolder(itemHistoryBinding.root) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PosterViewHolder {
-        return PosterViewHolder(ItemPostListBinding.inflate(LayoutInflater.from(parent.context)))
-    }
-
-    override fun onBindViewHolder(holder: PosterViewHolder, position: Int) {
-        holder.onBind(items[position])
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun submitData(posts: ArrayList<Post>) {
-        items.clear()
-        items.addAll(posts)
-        notifyDataSetChanged()
-    }
-
-    override fun getItemCount(): Int = items.size
-
-    class PosterViewHolder(var binding: ItemPostListBinding) :
-        RecyclerView.ViewHolder(binding.root) {
         fun onBind(post: Post) {
-            binding.apply {
+            itemHistoryBinding.apply {
                 tvTitle.text = post.title
                 tvBody.text = post.body
+                if (post.img.isNotEmpty()) {
+                    Glide.with(context)
+                        .load(post.img)
+                        .into(ivPicture)
+                    ivPicture.isVisible = true
+                }else {
+                    ivPicture.isVisible = false
+                }
             }
         }
+    }
+
+    class MyDiffUtil : DiffUtil.ItemCallback<Post>() {
+        override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Vh {
+        return Vh(ItemPostListBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            parent.context)
+    }
+
+    override fun onBindViewHolder(holder: Vh, position: Int) {
+        holder.onBind(getItem(position))
     }
 }
